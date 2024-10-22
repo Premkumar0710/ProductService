@@ -9,7 +9,7 @@ public class ProductServiceJune24Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ProductServiceJune24Application.class, args);
+		Product product = new Product();
+		product.setTitle("Iphone 15");
 	}
-	Product product = new Product();
-	product.setTitle("Iphone15");
 }
