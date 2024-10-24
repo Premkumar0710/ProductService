@@ -1,12 +1,12 @@
 package com.example.ProductServiceJune24.Controller;
 
+import com.example.ProductServiceJune24.CustomExceptions.ProductNotFoundException;
 import com.example.ProductServiceJune24.Models.Product;
 import com.example.ProductServiceJune24.Services.FakeStoreProductService;
 import com.example.ProductServiceJune24.Services.ProductService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,17 +16,50 @@ import java.util.List;
 public class ProductController {
 
     private ProductService productService;
-    public ProductController(ProductService productService){
+
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
+
     // here product is given as return type because we are going return all the attr of products
     @GetMapping("/{id}")
-    public Product getSingleProduct(@PathVariable("id") Long id){
-        return productService.getSingleProduct(id);
+    public ResponseEntity<Product> getSingleProduct(@PathVariable("id") Long id) throws ProductNotFoundException {
+        ResponseEntity<Product> response = new ResponseEntity<>(
+                productService.getSingleProduct(id),
+                HttpStatus.OK
+        );
+        return response;
     }
 
     @GetMapping()
-    public List<Product> getAllProducts(){
+    public List<Product> getAllProducts() {
         return productService.getAllProducts();
     }
+
+    public void deleteProduct(Long id) {
+
+    }
+
+    @PatchMapping("/{id}")
+    public Product updateProduct(@PathVariable("id") Long id, @RequestBody Product product) {
+        return productService.updateProduct(id, product);
+    }
+
+    @PutMapping("/{id}")
+    public Product replaceProduct(@PathVariable Long id, @RequestBody Product product) {
+        return null;
+
+    }
+
+//    public ResponseEntity<String> handleArithmeticException(){
+//        public ResponseEntity<String> handleArithmeticException(){
+//            ResponseEntity<String> response = new ResponseEntity<>(
+//                    "Arithmetic exception has happened, inside product controller" , HttpStatus.NOT_FOUND
+//            );
+//            return response;
+//        }
+//    }
+
 }
+
+
