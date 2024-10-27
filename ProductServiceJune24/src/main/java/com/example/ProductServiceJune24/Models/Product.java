@@ -11,7 +11,7 @@ import lombok.Setter;
 @Entity
 public class Product extends BaseModel {
     private String title;
-    private double price;
+    private Double price;
 
     @ManyToOne
     // 1 product can be part of 1 category ; i category has m products -> m:1

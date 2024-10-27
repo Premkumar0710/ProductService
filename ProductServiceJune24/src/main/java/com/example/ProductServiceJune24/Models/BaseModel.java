@@ -16,7 +16,7 @@ import java.util.Date;
 public class BaseModel {
     @Id // id is taken as primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto increment
-    private long id;
+    private Long id; // here we are using object Long bcoz we are passing this in Product Repo as generics
     private Date createdAt;
     private Date updatedAt;
 }
