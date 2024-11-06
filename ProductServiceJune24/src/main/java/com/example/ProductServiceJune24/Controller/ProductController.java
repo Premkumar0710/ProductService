@@ -62,11 +62,10 @@ public class ProductController {
 //    }
 
     // CRUD OPERATIONS
-    @PostMapping
-    public Product addNewProduct(@RequestBody Product product){
-        return productService.addNewProduct(product);
-    }
-
+//    @PostMapping
+//    public Product addNewProduct(@RequestBody Product product){
+//        return productService.addNewProduct(product);
+//    }
 
 }
 

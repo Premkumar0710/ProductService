@@ -5,10 +5,12 @@ import com.example.ProductServiceJune24.Projections.ProductWithIdAndTitle;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface ProductRepository extends JpaRepository<Product,Long> {
     // Product Repo should contain all the methods (CRUD) related to Product model
     List<Product> findByPriceIsGreaterThan(Double price);
@@ -36,11 +38,11 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
    List<Product> findAll(Sort sort);
 
    // HQL
-    @Query("select p.id , p.title from product p where p.id = :id")
-    List<ProductWithIdAndTitle> randomSearchMethod(Long id);
+   @Query("select p.id as id, p.title as title from Product p where p.id = :id")
+   List<ProductWithIdAndTitle> randomSearchMethod(Long id);
 
-    // Native
-    @Query(value = "select p.id , p.title as title from product p where p.id = :id", nativeQuery = true)
+    // Native or normal SQL
+    @Query(value = "select p.id as id , p.title as title from product p where p.id = :id", nativeQuery = true)
     List<ProductWithIdAndTitle> randomSearchMethod2(Long id);
 }
 
