@@ -2,6 +2,8 @@ package com.example.ProductServiceJune24.Repository;
 
 import com.example.ProductServiceJune24.Models.Product;
 import com.example.ProductServiceJune24.Projections.ProductWithIdAndTitle;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -34,8 +36,8 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     List<Product> findProductsByTitleContainsOrderById(String word);
 
    Optional<Product> findById(Long id);
-
-   List<Product> findAll(Sort sort);
+    @Override
+   Page<Product> findAll(Pageable pageable);
 
    // HQL
    @Query("select p.id as id, p.title as title from Product p where p.id = :id")
