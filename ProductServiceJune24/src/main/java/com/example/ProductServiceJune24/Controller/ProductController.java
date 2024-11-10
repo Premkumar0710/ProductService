@@ -18,7 +18,7 @@ import java.util.List;
 public class ProductController {
 
     private ProductService productService;
-
+    // @Qualifier("FakeStoreProductService") , @Qualifier("SelfProductService")
     public ProductController(@Qualifier("SelfProductService") ProductService productService) {
         this.productService = productService;
     }
@@ -34,13 +34,14 @@ public class ProductController {
     }
 
     @GetMapping()
+    // Implementing Pagination
     public Page<Product> getAllProducts(@RequestParam("pageNumber") int pageNumber , @RequestParam("pageSize") int pageSize) {
         return productService.getAllProducts(pageNumber,pageSize);
         // also try to do : return List by converting page of objects to list
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable("id") Long id) {
+    public void deleteProduct(@PathVariable("id") Long id) throws ProductNotFoundException {
        productService.deleteProduct(id);
     }
 
@@ -49,9 +50,10 @@ public class ProductController {
         return productService.updateProduct(id, product);
     }
 
+    // this method will change its current entry to new entry , if we try to replace product with id : 2 , it will accept all changes ; deletes current entry & gets created as a new entry
     @PutMapping("/{id}")
     public Product replaceProduct(@PathVariable Long id, @RequestBody Product product) {
-        return null;
+        return productService.addNewProduct(id,product);
     }
 
 //    public ResponseEntity<String> handleArithmeticException(){

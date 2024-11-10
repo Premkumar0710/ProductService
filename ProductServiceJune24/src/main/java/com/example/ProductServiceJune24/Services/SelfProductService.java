@@ -10,7 +10,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service("SelfProductService")
@@ -18,16 +17,16 @@ public class SelfProductService implements ProductService {
    private ProductRepository productRepository;
    private CategoryRepository categoryRepository;
 
-   public SelfProductService(ProductRepository productRepository , CategoryRepository categoryRepository){
+   public SelfProductService(ProductRepository productRepository, CategoryRepository categoryRepository){
        this.productRepository = productRepository;
        this.categoryRepository = categoryRepository;
    }
 
     @Override
     public Product getSingleProduct(Long id) throws ProductNotFoundException {
-        Optional<Product> productOptional = productRepository.findById(id);
+        Optional<Product> productOptional = productRepository.findById(id); // id the id searched is not in db then productoptional will be empty
         if(productOptional.isEmpty()){
-            throw new ProductNotFoundException("Product with id : " + id + "doesn't exist");
+            throw new ProductNotFoundException("Product with id : " + id + "doesn't exist",id);
         }
         return productOptional.get();
     }
@@ -37,7 +36,7 @@ public class SelfProductService implements ProductService {
     //    Sort sort = Sort.by("price").ascending();
      //   Sort sort = Sort.by("price").ascending().and(sort.by("title").descending());
         return productRepository.findAll(
-                PageRequest.of(pageNumber,pageSize,Sort.by("price").ascending())
+                PageRequest.of(pageNumber,pageSize,Sort.by("id").ascending())
         );
     }
 
@@ -45,7 +44,7 @@ public class SelfProductService implements ProductService {
     public Product updateProduct(Long id, Product product) throws ProductNotFoundException {
         Optional<Product> optionalProduct = productRepository.findById(id);
         if(optionalProduct.isEmpty()){
-            throw new ProductNotFoundException("Product with id : " + id + "doesn't exist");
+            throw new ProductNotFoundException("Product with id : " + id + "doesn't exist", id);
         }
         Product productInDB = optionalProduct.get();
         if(product.getTitle()!= null){
@@ -63,14 +62,18 @@ public class SelfProductService implements ProductService {
     }
 
     @Override
-    public void deleteProduct(Long id) {
+    public void deleteProduct(Long id) throws ProductNotFoundException {
+        Optional<Product> productOptional = productRepository.findById(id); // id the id searched is not in db then productoptional will be empty
+        if(productOptional.isEmpty()){
+            throw new ProductNotFoundException("Product with id : " + id + "doesn't exist",id);
+        }
         productRepository.deleteById(id);
     }
 
     @Override
 
-    // not working properly .... fix this
-    public Product addNewProduct(Product product) {
+    // not working properly .... fix this -> working now
+    public Product addNewProduct(Long id, Product product) {
         // need to check whether we have category or not else it will create transient save issues
 
         Category category = product.getCategory();

@@ -4,9 +4,9 @@ import com.example.ProductServiceJune24.CustomExceptions.ProductNotFoundExceptio
 import com.example.ProductServiceJune24.Models.Category;
 import com.example.ProductServiceJune24.Models.Product;
 import com.example.ProductServiceJune24.dtos.FakeStoreProductDto;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpMessageConverterExtractor;
@@ -21,14 +21,25 @@ import java.util.List;
 public class FakeStoreProductService implements ProductService {
 
     private RestTemplate restTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
-      public FakeStoreProductService(RestTemplate restTemplate){
-        this.restTemplate = restTemplate;
+      public FakeStoreProductService(RestTemplate restTemplate, RedisTemplate redisTemplate){
+          this.restTemplate = restTemplate;
+          this.redisTemplate = redisTemplate;
     }
 
     @Override
     public Product getSingleProduct(Long productId) throws ProductNotFoundException {
         //  throw new ArithmeticException();
+
+        // try to fetch the product from redis
+        Product product =  (Product) redisTemplate.opsForHash().get("PRODUCTS","PRODUCT_" + productId);
+        if(product!=null){
+            // cache Hit
+            return product;
+        }
+
+        // cache miss
 
         // call FakeStore to fetch the Product with given id. -> HTTP call
         FakeStoreProductDto fakeStoreProductDto = restTemplate.getForObject(
@@ -37,11 +48,15 @@ public class FakeStoreProductService implements ProductService {
         );
 
         if(fakeStoreProductDto == null){
-            throw new ProductNotFoundException("Product with id " + productId + " doesn't exist");
+            throw new ProductNotFoundException("Product with id " + productId + " doesn't exist",productId);
         }
 
         // Convert FakeStoreProductDto into product
-        return convertFakeStoreProductToProduct(fakeStoreProductDto);
+
+        // Cache MISS
+        product = convertFakeStoreProductToProduct(fakeStoreProductDto);
+        redisTemplate.opsForHash().put("PRODUCTS","PRODUCT_" + productId, product);
+        return product;
     }
 
     @Override
@@ -81,7 +96,7 @@ public class FakeStoreProductService implements ProductService {
     }
 
     @Override
-    public Product addNewProduct(Product product) {
+    public Product addNewProduct(Long id, Product product) {
         return null;
     }
 
