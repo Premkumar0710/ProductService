@@ -1,4 +1,12 @@
 package com.example.ProductService.Model;
 
-public class Category {
-}
+import lombok.Getter;
+import lombok.Setter;
+
+import java.awt.*;
+
+@Getter
+@Setter
+public class Category extends BaseModel{
+    private String value;
+  }
