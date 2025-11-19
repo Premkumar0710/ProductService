@@ -3,6 +3,7 @@ package com.example.ProductService.Controller;
 import com.example.ProductService.Exceptions.ProductNotFoundException;
 import com.example.ProductService.Models.Product;
 import com.example.ProductService.Service.ProductService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class ProductController {
     private ProductService productService;
 
     // constructor injection
-    public ProductController(ProductService productService){
+    public ProductController(@Qualifier("SelfProductService") ProductService productService){
         this.productService = productService;
     }
 
