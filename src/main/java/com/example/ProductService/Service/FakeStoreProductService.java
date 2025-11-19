@@ -1,12 +1,14 @@
 package com.example.ProductService.Service;
 
 import com.example.ProductService.Dtos.FakeStoreProductDto;
+import com.example.ProductService.Exceptions.ProductNotFoundException;
 import com.example.ProductService.Models.Category;
 import com.example.ProductService.Models.Product;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,25 +22,56 @@ public class FakeStoreProductService implements ProductService{
 
     @Override
     public List<Product> getAllProducts() {
-        return List.of();
+
+      //  ResponseEntity<List<FakeStoreProductDto>> responseEntity = restTemplate.getForEntity("https://fakestoreapi.com/products",List<FakeStoreProductDto>.class); In runtime we cannot use List<Fakestore> because of type erasure concept
+        ResponseEntity<FakeStoreProductDto[]> responseEntity =
+                restTemplate.getForEntity("https://fakestoreapi.com/products",FakeStoreProductDto[].class);
+
+        FakeStoreProductDto[] fakeStoreProductDtos = responseEntity.getBody();
+        List<Product> products = new ArrayList<>();
+        for(FakeStoreProductDto fakeStoreProductDto : fakeStoreProductDtos){
+            products.add(convertFakeStoreProductDtoToProduct(fakeStoreProductDto));
+        }
+
+        return products;
     }
 
     @Override
-    public Product getSingleProduct(Long productId) {
-        // make a http call to fakestoreapi to get the product with given id
+    public Product getSingleProduct(Long productId) throws ProductNotFoundException {
 
+        // make a http call to fakestoreapi to get the product with given id
        // RestTemplate restTemplate = new RestTemplate(); -> added this in configs package to make it globally available
         ResponseEntity<FakeStoreProductDto> responseEntity = restTemplate.getForEntity("https://fakestoreapi.com/products/" + productId, FakeStoreProductDto.class);
       //  FakeStoreProductDto fakeStoreProductDto = responseEntity.getBody();
 
         // convert fakeStoreProductDto to product
-        return convertFakeStoreProductDtoToProduct(responseEntity.getBody());
+       // return convertFakeStoreProductDtoToProduct(responseEntity.getBody());
+
+        FakeStoreProductDto fakeStoreProductDto = responseEntity.getBody();
+
+        if(fakeStoreProductDto == null){
+            // invalid productId
+            throw new ProductNotFoundException(productId);
+        }
+
+        return convertFakeStoreProductDtoToProduct(fakeStoreProductDto);
     }
 
     @Override
     public Product createProduct(Product product) {
-        return null;
+
+        FakeStoreProductDto dto = convertProductToFakeStoreProductDto(product);
+
+        ResponseEntity<FakeStoreProductDto> responseEntity =
+                restTemplate.postForEntity(
+                        "https://fakestoreapi.com/products",
+                        dto,
+                        FakeStoreProductDto.class
+                );
+
+        return convertFakeStoreProductDtoToProduct(responseEntity.getBody());
     }
+
 
     @Override
     public Product replaceProduct(Long productId, Product product) {
@@ -47,9 +80,9 @@ public class FakeStoreProductService implements ProductService{
 
     private Product convertFakeStoreProductDtoToProduct(FakeStoreProductDto fakeStoreProductDto){
 
-        if(fakeStoreProductDto == null){
-            return null;
-        }
+//        if(fakeStoreProductDto == null){
+//            return null;
+//        }
 
         Product product = new Product();
         product.setTitle(fakeStoreProductDto.getTitle());
@@ -64,4 +97,16 @@ public class FakeStoreProductService implements ProductService{
 
         return product;
     }
+
+    private FakeStoreProductDto convertProductToFakeStoreProductDto(Product product) {
+        FakeStoreProductDto dto = new FakeStoreProductDto();
+        dto.setId(product.getId());
+        dto.setTitle(product.getTitle());
+        dto.setDescription(product.getDescription());
+        dto.setPrice(product.getPrice());
+        dto.setImage(product.getImageUrl());
+        dto.setCategory(product.getCategory().toString());
+        return dto;
+    }
+
 }
