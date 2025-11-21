@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service("SelfProductService")
-// @Primary - since we used qualifier - commenting it out
+@Primary
 public class SelfProductService implements ProductService{
 
     private ProductRepository productRepository;
