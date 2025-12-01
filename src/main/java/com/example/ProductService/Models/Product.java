@@ -2,12 +2,14 @@ package com.example.ProductService.Models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "products")
+@Entity
+@Table(name = "products")
 public class Product extends BaseModel{
 
     private String title;
@@ -22,6 +24,7 @@ public class Product extends BaseModel{
     * m             1
     * So, its m:1
     * */
+
 
     public String getTitle() {
         return title;
